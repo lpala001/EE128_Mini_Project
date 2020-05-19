@@ -1,0 +1,162 @@
+#include <float.h>
+#include <stdio.h>
+#include <mc9s12dg256.h>
+#include <termio.h>
+
+
+void elev(int floor,int dest);
+void sort(int floor,int size, int set[]);
+
+unsigned char F1 = 0; 
+unsigned char F2 = 0; 
+unsigned char F3 = 0; 
+unsigned char conf = 0; 
+
+int tmp1;
+int tmp2;
+int tmp3;
+int tmp4;
+
+unsigned long i; 
+unsigned long j;
+unsigned long k;
+unsigned long speed = 7500;
+
+int floor;
+int dest;
+int dist;
+int size;
+int set[5];
+
+void elev(int floor,int dest)
+{
+	int dist = dest-floor;
+	if(dist>0)
+	{
+      		for(j = 0;j<85*dist;j++)
+      		{
+      		/*CW*/
+      		PORTB = 0x3A;
+      		for (i = 0; i < speed; i++);       
+      		PORTB = 0x39;
+      		for (i = 0; i < speed; i++);        
+      		PORTB = 0x35;
+      		for (i = 0; i < speed; i++);  
+      		PORTB = 0x36;
+      		for (i = 0; i < speed; i++);
+      		} 	
+	}
+	if(dist<0)
+	{
+		for(j = 0;j<85*(-dist);j++)
+		{
+      		/*CCW*/
+      		PORTB = 0x36;
+      		for (i = 0; i < speed; i++);
+      		PORTB = 0x35;
+      		for (i = 0; i < speed; i++);
+      		PORTB = 0x39;
+      		for (i = 0; i < speed; i++);     
+      		PORTB = 0x3A;
+      		for (i = 0; i < speed; i++);
+		}
+	}
+}
+
+void sort(int floor,int size, int set[]) 
+{
+  if(floor==1) 
+  {
+    for(i=0;i<size;i++) 
+    {
+      for (j=1+i;j<size;j++) 
+      {
+        if(set[i]>set[j]) 
+        {
+          tmp1 = set[i];
+          set[i]=set[j];
+          set[j]=tmp1;
+        }
+      }
+    }
+  }
+  if(floor==3) 
+  {
+    for(i=0;i<size;i++) 
+    {
+      for (j=1+i;j<size;j++) 
+      {
+        if(set[i]<set[j]) 
+        {
+          tmp2=set[i];
+          set[i]=set[j];
+          set[j]=tmp2;
+        }
+      }
+    }
+  } 
+  if(floor==2)
+  {
+    if(set[2]==2) 
+    {
+      tmp4=set[2];
+      set[2]=set[1];
+      set[1]=tmp4;    
+    }    
+  }  
+}
+
+void main(void) 
+{ 
+DDRB = 0xFF; 
+DDRA = 0x00;
+
+PORTB = 0x30;
+PORTA = 0x00;
+floor = 1;
+size = 0;
+  	while (1) 
+  	{
+ 
+    		F1 = PORTA & 0x02;
+    		F2 = PORTA & 0x04;
+    		F3 = PORTA & 0x08;
+    		conf = PORTA & 0x10;   
+   
+    		if(F1)
+    		{
+          size++;
+          set[size] = 1;
+    		} 
+    		if(F2)
+    		{
+          size++;
+          set[size] = 2;
+     		}
+    		if(F3)
+    		{	
+    		  size++;
+          set[size] = 3;
+    		}	   
+    		if(size>2)
+    		{
+    		  set[size] = 0;
+    		  size--;
+    		}
+    		if(conf) 
+    		{
+    		  sort(floor,size,set);
+    		  for(k=0;k<size;k++) 
+    		  {
+    		    elev(floor,set[size]);
+    		    floor = set[size];  
+    		  }
+    		  size = 0;
+    		}
+  	}
+}
+
+        
+    
+    
+    

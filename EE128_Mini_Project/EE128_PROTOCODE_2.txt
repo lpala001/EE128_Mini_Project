@@ -1,0 +1,90 @@
+#include <float.h>
+#include <stdio.h>
+#include <mc9s12dg256.h>
+#include <termio.h>
+
+
+void elev(int floor,int dest);
+unsigned char F1 = 0; 
+unsigned char F2 = 0; 
+unsigned char F3 = 0; 
+
+
+unsigned long i; 
+unsigned long j;
+unsigned long speed = 7500;
+
+int floor;
+int dest;
+
+void elev(int floor,int dest)
+{
+	int dist = dest-floor;
+	if(dist>0)
+	{
+      		for(j = 0;j<85*dist;j++)
+      		{
+      		/*CW*/
+      		PORTB = 0x36;
+      		for (i = 0; i < speed; i++);
+      		PORTB = 0x35;
+      		for (i = 0; i < speed; i++);
+      		PORTB = 0x39;
+      		for (i = 0; i < speed; i++);     
+      		PORTB = 0x3A;
+      		for (i = 0; i < speed; i++);
+      		} 	
+	}
+	if(dist<0)
+	{
+		for(j = 0;j<85*(-dist);j++)
+		{
+      		/*CCW*/
+      		PORTB = 0x3A;
+      		for (i = 0; i < speed; i++);       
+      		PORTB = 0x39;
+      		for (i = 0; i < speed; i++);        
+      		PORTB = 0x35;
+      		for (i = 0; i < speed; i++);  
+      		PORTB = 0x36;
+      		for (i = 0; i < speed; i++);
+		}
+	}
+}
+
+void main(void) 
+{ 
+DDRB = 0xFF; 
+DDRA = 0x00;
+
+PORTB = 0x30;
+PORTA = 0x00;
+floor = 1;
+  	while (1) 
+  	{
+ 
+    		F1 = PORTA & 0x02;
+    		F2 = PORTA & 0x04;
+    		F3 = PORTA & 0x08;
+    
+    		/*Directions*/
+    		if(F1)
+    		{
+ 			dest = 1;
+			elev(floor,dest);
+			floor = dest;	
+    		} 
+    		if(F2)
+    		{
+			dest = 2;
+			elev(floor,dest);
+			floor = dest;	
+     		}
+		if(F3)
+		{	
+			dest = 3;
+			elev(floor,dest);
+			floor = dest;	
+		}	   
+  	}
+}

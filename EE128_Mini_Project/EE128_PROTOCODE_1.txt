@@ -1,0 +1,81 @@
+#include <float.h>
+#include <stdio.h>
+#include <mc9s12dg256.h>
+#include <termio.h>
+
+
+unsigned char GO_UP = 0; 
+unsigned char GO_DWN = 0;
+
+unsigned long i; 
+unsigned long j;
+unsigned long speed = 7500;
+
+int floor;
+int dest;
+
+
+
+void main(void) 
+{ 
+DDRB = 0xFF; 
+DDRA = 0x00;
+
+
+PORTA = 0x00;
+PORTB = 0x30;
+
+floor = 1;
+  	while (1) 
+  	{
+                                        
+    		GO_UP = PORTA & 0x02;
+    		GO_DWN = PORTA & 0x04;
+    		//F3 = PORTA & 0x04;
+    
+    		/*Directions*/
+    		if(GO_UP)
+    		{
+      			for(j = 0;j<85;j++)
+      			{
+      				/*CW*/
+      				PORTB = 0x36;
+      				for (i = 0; i < speed; i++);
+      				PORTB = 0x35;
+      				for (i = 0; i < speed; i++);
+      				PORTB = 0x39;
+      				for (i = 0; i < speed; i++);     
+      				PORTB = 0x3A;
+      				for (i = 0; i < speed; i++);
+				floor++;
+      			} 	
+    		} 
+    		/*Speed Adjustment*/
+    		if (GO_DWN)
+    		{
+      			for(j = 0;j<85;j++)
+      			{
+      				/*CCW*/
+      				PORTB = 0x3A;
+      				for (i = 0; i < speed; i++);       
+      				PORTB = 0x39;
+      				for (i = 0; i < speed; i++);        
+      				PORTB = 0x35;
+      				for (i = 0; i < speed; i++);  
+      				PORTB = 0x36;
+      				for (i = 0; i < speed; i++);
+				floor--;
+      			}
+     		} 
+     		else
+     		{
+     		  PORTB = 0x00;
+     		}
+  	}
+}
+
+        
+    
+    
+    
+    
